@@ -10,15 +10,28 @@ fb.auth.onAuthStateChanged(user => {
     store.dispatch('fetchUserProfile')
 
     fb.postsCollection.orderBy('createdAt', 'desc').onSnapshot(querySnapshot => {
-      let postsArray = []
+      let createdByCurrentUser
+      if (querySnapshot.docs.length) {
+        createdByCurrentUser = store.state.currentUser.uid === querySnapshot.docChanges()[0].doc.data().userId
+      }
 
-      querySnapshot.forEach(doc => {
-        let post = doc.data()
-        post.id = doc.id
-        postsArray.push(post)
-      })
+      if (querySnapshot.docChanges().length !== querySnapshot.docs.length &&
+        querySnapshot.docChanges()[0].type === 'added' && !createdByCurrentUser) {
+        let post = querySnapshot.docChanges()[0].doc.data()
+        post.id = querySnapshot.docChanges()[0].doc.id
 
-      store.commit('setPosts', postsArray)
+        store.commit('setHiddenPosts', post)
+      } else {
+        let postsArray = []
+
+        querySnapshot.forEach(doc => {
+          let post = doc.data()
+          post.id = doc.id
+          postsArray.push(post)
+        })
+
+        store.commit('setPosts', postsArray)
+      }
     })
   }
 })
@@ -27,7 +40,8 @@ export const store = new Vuex.Store({
   state: {
     currentUser: null,
     userProfile: {},
-    posts: []
+    posts: [],
+    hiddenPosts: []
   },
   actions: {
     fetchUserProfile ({ commit, state }) {
@@ -40,7 +54,8 @@ export const store = new Vuex.Store({
     clearData ({ commit }) {
       commit('setCurrentUser', null)
       commit('setUserProfile', {})
-      commit('setPosts', [])
+      commit('setPosts', null)
+      commit('setHiddenPosts', null)
     }
   },
   mutations: {
@@ -52,6 +67,16 @@ export const store = new Vuex.Store({
     },
     setPosts (state, val) {
       state.posts = val
+    },
+    setHiddenPosts (state, val) {
+      if (val) {
+        // so we don't add dupes
+        if (!state.hiddenPosts.some(x => x.id === val.id)) {
+          state.hiddenPosts.unshift(val)
+        }
+      } else {
+        state.hiddenPosts = []
+      }
     }
   }
 })

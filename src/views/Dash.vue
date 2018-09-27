@@ -20,6 +20,14 @@
         </div>
       </div>
       <div class="col-2">
+        <transition name="fade">
+          <div v-if="hiddenPosts.length" @click="showNewPosts" class="hidden-posts">
+            <p>
+              Click to show <span class="new-posts">{{ hiddenPosts.length }}</span>
+              new <span v-if="hiddenPosts.length > 1">posts</span><span v-else>post</span>.
+            </p>
+          </div>
+        </transition>
         <div v-if="posts.length">
           <div v-for="post in posts" class="post" :key="post.id">
             <h5>{{ post.userName }}</h5>
@@ -54,7 +62,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['userProfile', 'currentUser', 'posts'])
+    ...mapState(['userProfile', 'currentUser', 'posts', 'hiddenPosts'])
   },
   methods: {
     createPost: function () {
@@ -71,6 +79,12 @@ export default {
       }).catch(err => {
         console.log(err)
       })
+    },
+    showNewPosts: function () {
+      let updatedPostsArray = this.hiddenPosts.concat(this.posts)
+      // clear hiddenPosts array and update posts array
+      this.$store.commit('setHiddenPosts', null)
+      this.$store.commit('setPosts', updatedPostsArray)
     }
   },
   filters: {
