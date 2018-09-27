@@ -34,9 +34,9 @@
             <span>{{ post.createdAt | formatDate }}</span>
             <p>{{ post.content | trimLength }}</p>
             <ul>
-              <li><a>comments {{ post.comments }}</a></li>
-              <li><a>likes {{ post.likes }}</a></li>
-              <li><a>view full post</a></li>
+              <li><a @click="openCommentModal(post)">comments {{ post.comments }}</a></li>
+              <li><a @click="likePost(post.id, post.likes)">likes {{ post.likes }}</a></li>
+              <li><a @click="viewPost(post)">view full post</a></li>
             </ul>
           </div>
         </div>
@@ -45,6 +45,48 @@
         </div>
       </div>
     </section>
+
+    <transition name="fade">
+      <div v-if="showCommentModal" class="c-modal">
+        <div class="c-container">
+          <a @click="closeCommentModal">X</a>
+          <p>Add a comment</p>
+          <form @submit.prevent>
+            <textarea v-model.trim="comment.content"></textarea>
+            <button
+              @click="addComment"
+              :disabled="comment.content == ''"
+              class="button">
+              add comment
+            </button>
+          </form>
+        </div>
+      </div>
+    </transition>
+
+    <transition name="fade">
+      <div v-if="showPostModal" class="p-modal">
+        <div class="p-container">
+          <a @click="closePostModal" class="close">X</a>
+          <div class="post">
+            <h5>{{ fullPost.userName }}</h5>
+            <span>{{ fullPost.createdOn | formatDate }}</span>
+            <p>{{ fullPost.content }}</p>
+            <ul>
+              <li><a>comments {{ fullPost.comments }}</a></li>
+              <li><a>likes {{ fullPost.likes }}</a></li>
+            </ul>
+          </div>
+          <div v-show="postComments.length" class="comments">
+            <div v-for="comment in postComments" class="comment" :key="comment.id">
+              <p>{{ comment.userName }}</p>
+              <span>{{ comment.CreatedOn | formatDate }}</span>
+              <p>{{ comment.content }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -58,7 +100,17 @@ export default {
     return {
       post: {
         content: ''
-      }
+      },
+      comment: {
+        postId: '',
+        userId: '',
+        content: '',
+        postComments: 0
+      },
+      showCommentModal: false,
+      showPostModal: false,
+      fullPost: {},
+      postComments: []
     }
   },
   computed: {
@@ -85,6 +137,77 @@ export default {
       // clear hiddenPosts array and update posts array
       this.$store.commit('setHiddenPosts', null)
       this.$store.commit('setPosts', updatedPostsArray)
+    },
+    openCommentModal: function (post) {
+      this.comment.postId = post.id
+      this.comment.userId = post.userId
+      this.comment.postComments = post.comments
+      this.showCommentModal = true
+    },
+    closeCommentModal: function () {
+      this.comment.postId = ''
+      this.comment.userId = ''
+      this.comment.content = ''
+      this.showCommentModal = false
+    },
+    addComment: function () {
+      let postId = this.comment.postId
+      let postComments = this.comment.postComments
+
+      fb.commentsCollection.add({
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        content: this.comment.content,
+        postId: postId,
+        userId: this.currentUser.uid,
+        userName: this.userProfile.name
+      }).then(doc => {
+        fb.postsCollection.doc(postId).update({
+          comments: postComments + 1
+        }).then(() => {
+          this.closeCommentModal()
+        })
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    likePost: function (postId, postLikes) {
+      let docId = `${this.currentUser.uid}_${postId}`
+
+      fb.likesCollection.doc(docId).get().then(doc => {
+        if (doc.exists) return
+        fb.likesCollection.doc(docId).set({
+          postId: postId,
+          userId: this.currentUser.uid
+        }).then(() => {
+          fb.postsCollection.doc(postId).update({
+            likes: postLikes + 1
+          })
+        })
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    viewPost: function (post) {
+      fb.commentsCollection.where('postId', '==', post.id).get().then(docs => {
+        let commentsArray = []
+
+        docs.forEach(doc => {
+          let comment = doc.data()
+          comment.id = doc.id
+          commentsArray.push(comment)
+        })
+
+        this.postComments = commentsArray
+        this.fullPost = post
+        this.showPostModal = true
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    closePostModal () {
+      this.postComments = []
+      this.showPostModal = false
     }
   },
   filters: {
