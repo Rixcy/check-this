@@ -18,7 +18,7 @@ const fb = require('../firebaseConfig.js')
 
 export default {
   methods: {
-    logout: function () {
+    logout () {
       fb.auth.signOut().then(() => {
         this.$store.dispatch('clearData')
         this.$router.push('/login')

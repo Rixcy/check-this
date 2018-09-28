@@ -114,7 +114,7 @@
 const fb = require('../firebaseConfig.js')
 
 export default {
-  data: function () {
+  data () {
     return {
       loginForm: {
         email: '',
@@ -134,11 +134,11 @@ export default {
     }
   },
   methods: {
-    toggleForm: function () {
+    toggleForm () {
       this.errorMsg = ''
       this.showLoginForm = !this.showLoginForm
     },
-    togglePasswordReset: function () {
+    togglePasswordReset () {
       if (this.showForgotPassword) {
         this.showLoginForm = true
         this.showForgotPassword = false
@@ -148,7 +148,7 @@ export default {
         this.showForgotPassword = true
       }
     },
-    login: function () {
+    login () {
       this.performingRequest = true
 
       fb.auth.signInWithEmailAndPassword(
@@ -165,7 +165,7 @@ export default {
         this.errorMsg = err.message
       })
     },
-    signup: function () {
+    signup () {
       this.performingRequest = true
 
       fb.auth.createUserWithEmailAndPassword(
@@ -191,7 +191,7 @@ export default {
         this.errorMsg = err.message
       })
     },
-    resetPassword: function () {
+    resetPassword () {
       this.performingRequest = true
 
       fb.auth.sendPasswordResetEmail(this.passwordForm.email).then(() => {

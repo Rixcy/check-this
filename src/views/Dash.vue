@@ -96,7 +96,7 @@ import moment from 'moment'
 const fb = require('../firebaseConfig.js')
 
 export default {
-  data: function () {
+  data () {
     return {
       post: {
         content: ''
@@ -117,7 +117,7 @@ export default {
     ...mapState(['userProfile', 'currentUser', 'posts', 'hiddenPosts'])
   },
   methods: {
-    createPost: function () {
+    createPost () {
       fb.postsCollection.add({
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -132,25 +132,25 @@ export default {
         console.log(err)
       })
     },
-    showNewPosts: function () {
+    showNewPosts () {
       let updatedPostsArray = this.hiddenPosts.concat(this.posts)
       // clear hiddenPosts array and update posts array
       this.$store.commit('setHiddenPosts', null)
       this.$store.commit('setPosts', updatedPostsArray)
     },
-    openCommentModal: function (post) {
+    openCommentModal (post) {
       this.comment.postId = post.id
       this.comment.userId = post.userId
       this.comment.postComments = post.comments
       this.showCommentModal = true
     },
-    closeCommentModal: function () {
+    closeCommentModal () {
       this.comment.postId = ''
       this.comment.userId = ''
       this.comment.content = ''
       this.showCommentModal = false
     },
-    addComment: function () {
+    addComment () {
       let postId = this.comment.postId
       let postComments = this.comment.postComments
 
@@ -171,7 +171,7 @@ export default {
         console.log(err)
       })
     },
-    likePost: function (postId, postLikes) {
+    likePost (postId, postLikes) {
       let docId = `${this.currentUser.uid}_${postId}`
 
       fb.likesCollection.doc(docId).get().then(doc => {
@@ -188,7 +188,7 @@ export default {
         console.log(err)
       })
     },
-    viewPost: function (post) {
+    viewPost (post) {
       fb.commentsCollection.where('postId', '==', post.id).get().then(docs => {
         let commentsArray = []
 

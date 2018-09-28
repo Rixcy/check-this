@@ -35,7 +35,7 @@
 import { mapState } from 'vuex'
 
 export default {
-  data: function () {
+  data () {
     return {
       name: '',
       title: '',
@@ -46,7 +46,7 @@ export default {
     ...mapState(['userProfile'])
   },
   methods: {
-    updateProfile: function () {
+    updateProfile () {
       this.$store.dispatch('updateProfile', {
         name: this.name !== '' ? this.name : this.userProfile.name,
         title: this.title !== '' ? this.title : this.userProfile.title
