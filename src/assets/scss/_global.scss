@@ -1,19 +1,14 @@
 // imports
 @import url('https://fonts.googleapis.com/css?family=Open+Sans');
 
-// colors
-$primary: #30A0EE;
-$error: #ef5777;
-$success: #1abc9c;
-$light: #F5F8FA;
-$medium: #657786;
-$dark: #34495E;
-$white: #fff;
+html, body {
+  background-color: #F0F2F4 !important;
+}
+
 // resets
 body {
   margin: 0;
   color: $dark;
-  background: #E6ECF0;
 }
 
 html {

@@ -1,5 +1,6 @@
-import firebase from 'firebase'
+import firebase from 'firebase/app'
 import 'firebase/firestore'
+import 'firebase/auth'
 
 const config = {
   apiKey: process.env.VUE_APP_FIREBASE_API_KEY,
@@ -22,6 +23,7 @@ db.settings(settings)
 
 const usersCollection = db.collection('users')
 const postsCollection = db.collection('posts')
+const notesCollection = db.collection('notes')
 const commentsCollection = db.collection('comments')
 const likesCollection = db.collection('likes')
 
@@ -31,6 +33,7 @@ export {
   currentUser,
   usersCollection,
   postsCollection,
+  notesCollection,
   commentsCollection,
   likesCollection
 }

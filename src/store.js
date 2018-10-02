@@ -34,8 +34,47 @@ fb.auth.onAuthStateChanged(user => {
       }
     })
 
+    fb.notesCollection.orderBy('createdAt', 'desc').onSnapshot(querySnapshot => {
+      let createdByCurrentUser
+      if (querySnapshot.docs.length) {
+        createdByCurrentUser = store.state.currentUser.uid === querySnapshot.docChanges()[0].doc.data().userId
+      }
+
+      if (querySnapshot.docChanges().length !== querySnapshot.docs.length &&
+        querySnapshot.docChanges()[0].type === 'added' && !createdByCurrentUser) {
+        let note = querySnapshot.docChanges()[0].doc.data()
+        note.id = querySnapshot.docChanges()[0].doc.id
+
+        store.commit('setHiddenNotes', note)
+      } else {
+        let notesArray = []
+
+        querySnapshot.forEach(doc => {
+          let note = doc.data()
+          note.id = doc.id
+          notesArray.push(note)
+        })
+
+        store.commit('setNotes', notesArray)
+      }
+    })
+
+    fb.usersCollection.orderBy('createdAt', 'desc').onSnapshot(querySnapshot => {
+      let usersArray = []
+
+      querySnapshot.forEach(doc => {
+        let usr = doc.data()
+        usr.id = doc.id
+        usersArray.push(usr)
+      })
+
+      store.commit('setUsers', usersArray)
+    })
+
     fb.usersCollection.doc(user.uid).onSnapshot(doc => {
-      store.commit('setUserProfile', doc.data())
+      let data = doc.data()
+      data.email = user.email
+      store.commit('setUserProfile', data)
     })
   }
 })
@@ -45,12 +84,17 @@ export const store = new Vuex.Store({
     currentUser: null,
     userProfile: {},
     posts: [],
-    hiddenPosts: []
+    hiddenPosts: [],
+    notes: [],
+    hiddenNotes: [],
+    users: []
   },
   actions: {
     fetchUserProfile ({ commit, state }) {
       fb.usersCollection.doc(state.currentUser.uid).get().then(res => {
-        commit('setUserProfile', res.data())
+        let data = res.data()
+        data.email = state.currentUser.email
+        commit('setUserProfile', data)
       }).catch(err => {
         console.log(err)
       })
@@ -60,16 +104,29 @@ export const store = new Vuex.Store({
       commit('setUserProfile', {})
       commit('setPosts', null)
       commit('setHiddenPosts', null)
+      commit('setNotes', null)
+      commit('setHiddenNotes', null)
+      commit('setUsers', null)
     },
     updateProfile ({ commit, state }, data) {
       let name = data.name
       let title = data.title
+      let avatar = data.avatar
+      let location = data.location
+      let website = data.website
 
-      fb.usersCollection.doc(state.currentUser.uid).update({ name, title }).then(user => {
+      fb.usersCollection.doc(state.currentUser.uid).update({
+        name,
+        title,
+        avatar,
+        location,
+        website
+      }).then(user => {
         fb.postsCollection.where('userId', '==', state.currentUser.uid).get().then(docs => {
           docs.forEach(doc => {
             fb.postsCollection.doc(doc.id).update({
-              userName: name
+              userName: name,
+              avatar: avatar
             })
           })
         })
@@ -77,13 +134,31 @@ export const store = new Vuex.Store({
         fb.commentsCollection.where('userId', '==', state.currentUser.uid).get().then(docs => {
           docs.forEach(doc => {
             fb.commentsCollection.doc(doc.id).update({
-              userName: name
+              userName: name,
+              avatar: avatar
             })
           })
         })
       }).catch(err => {
         console.log(err)
       })
+    },
+    updateEmailAddress ({ commit, state }, data) {
+      let email = data.email
+      let user = data.user
+
+      if (email !== state.currentUser.email) {
+        user.updateEmail(email).then(() => {
+          console.log('Updated email in auth')
+          fb.usersCollection.doc(state.currentUser.uid).update({ email: email }).then(() => {
+            console.log('Updated email in users table')
+          }).catch(err => {
+            console.log(err)
+          })
+        }).catch(err => {
+          console.log(err)
+        })
+      }
     }
   },
   mutations: {
@@ -105,6 +180,22 @@ export const store = new Vuex.Store({
       } else {
         state.hiddenPosts = []
       }
+    },
+    setNotes (state, val) {
+      state.notes = val
+    },
+    setHiddenNotes (state, val) {
+      if (val) {
+        // so we don't add dupes
+        if (!state.hiddenNotes.some(x => x.id === val.id)) {
+          state.hiddenNotes.unshift(val)
+        }
+      } else {
+        state.hiddenNotes = []
+      }
+    },
+    setUsers (state, val) {
+      state.users = val
     }
   }
 })
