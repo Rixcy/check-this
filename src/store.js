@@ -144,21 +144,22 @@ export const store = new Vuex.Store({
       })
     },
     updateEmailAddress ({ commit, state }, data) {
-      let email = data.email
-      let user = data.user
+      return new Promise((resolve, reject) => {
+        let email = data.email
+        let user = data.user
 
-      if (email !== state.currentUser.email) {
-        user.updateEmail(email).then(() => {
-          console.log('Updated email in auth')
+        if (email !== state.currentUser.email) {
           fb.usersCollection.doc(state.currentUser.uid).update({ email: email }).then(() => {
-            console.log('Updated email in users table')
+            user.updateEmail(email).then(() => {
+              resolve()
+            }).catch(err => {
+              reject(err)
+            })
           }).catch(err => {
             console.log(err)
           })
-        }).catch(err => {
-          console.log(err)
-        })
-      }
+        }
+      })
     }
   },
   mutations: {

@@ -64,6 +64,12 @@
 
         <button @click="updateProfile" class="button">Update Profile</button>
       </form>
+
+      <transition name="fade">
+        <div v-if="errorMsg !== ''" class="error-msg">
+          <p>{{ errorMsg }}</p>
+        </div>
+      </transition>
     </div>
   </section>
 </template>
@@ -77,7 +83,8 @@ export default {
   },
   data () {
     return {
-      showSuccess: false
+      showSuccess: false,
+      errorMsg: ''
     }
   },
   methods: {
@@ -88,11 +95,15 @@ export default {
         avatar: this.userProfile.avatar,
         location: this.userProfile.location,
         website: this.userProfile.website
-      })
-
-      this.$store.dispatch('updateEmailAddress', {
-        email: this.userProfile.email,
-        user: this.currentUser
+      }).then(() => {
+        this.$store.dispatch('updateEmailAddress', {
+          email: this.userProfile.email,
+          user: this.currentUser
+        }).catch(err => {
+          this.errorMsg = err
+        })
+      }).catch(err => {
+        console.log(err)
       })
 
       this.showSuccess = true
