@@ -177,7 +177,9 @@ export default {
         fb.usersCollection.doc(user.user.uid).set({
           name: this.signupForm.name,
           avatar: `https://api.adorable.io/avatars/300/${user.user.uid}@adorable.io.png`,
-          email: this.signupForm.email
+          email: this.signupForm.email,
+          createdAt: fb.timestamp,
+          updatedAt: fb.timestamp
         }).then(() => {
           this.$store.dispatch('fetchUserProfile')
           this.performingRequest = false

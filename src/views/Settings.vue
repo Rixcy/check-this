@@ -1,117 +1,230 @@
 <template>
   <section id="settings">
     <div class="col1">
-      <div class="is-inline-block">
-        <h1 class="title is-2">Settings</h1>
-        <p>Update your profile</p>
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item has-text-centered">
+            <h1 class="title is-2">Settings</h1>
+          </div>
+        </div>
 
-        <transition name="fade">
-          <p v-if="showSuccess" class="success">Profile updated</p>
-        </transition>
+        <div class="level-right">
+          <div class="level-item">
+            <div class="image is-96x96 is-pulled-right">
+              <img class="is-rounded" :src="avatar" />
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="image is-96x96 is-pulled-right">
-        <img class="is-rounded" :src="userProfile.avatar" />
-      </div>
+      <transition name="fade">
+        <div v-if="errorMsg !== ''" class="error-msg">
+          <p>{{ errorMsg.message }}</p>
+        </div>
+      </transition>
 
       <form @submit.prevent class="settings-form">
         <div class="columns">
           <div class="column">
-            <label for="title">Title</label>
+            <label class="label" for="title">Title</label>
             <input
               type="text"
               id="title"
-              v-model.trim="userProfile.title"
+              :value="title"
+              @input="updateProfileData"
               autocomplete="off">
           </div>
           <div class="column is-three-quarters">
-            <label for="name">Name</label>
-            <input
-              type="text"
-              id="name"
-              v-model.trim="userProfile.name"
-              autocomplete="off">
+            <label class="label" for="name">Name</label>
+            <div class="field">
+              <p class="control has-icons-right">
+                <input
+                  type="text"
+                  id="name"
+                  :value="name"
+                  @input="updateProfileData"
+                  autocomplete="off">
+                <span class="icon is-small is-right" aria-hidden="true">
+                  <font-awesome-icon icon="user"></font-awesome-icon>
+                </span>
+              </p>
+            </div>
           </div>
         </div>
 
-        <label for="email">Email</label>
-        <input
-          type="email"
-          id="email"
-          v-model.trim="userProfile.email"
-          autocomplete="off">
+        <label class="label" for="email">Auth Email</label>
+        <div class="field">
+          <p class="control has-icons-right">
+            <input
+              type="email"
+              id="authEmail"
+              :value="authEmail"
+              @input="updateProfileData"
+              autocomplete="off">
+              <span class="icon is-small is-right" aria-hidden="true">
+                <font-awesome-icon icon="lock"></font-awesome-icon>
+              </span>
+          </p>
+        </div>
 
-        <label for="location">Location</label>
-        <input
-          type="text"
-          id="location"
-          v-model.trim="userProfile.location"
-          autocomplete="off">
+        <label class="label" for="email">Email</label>
+        <div class="field">
+          <p class="control has-icons-right">
+            <input
+              type="email"
+              id="email"
+              :value="email"
+              @input="updateProfileData"
+              autocomplete="off">
+            <span class="icon is-small is-right" aria-hidden="true">
+              <font-awesome-icon icon="envelope"></font-awesome-icon>
+            </span>
+          </p>
+        </div>
 
-        <label for="website">Website</label>
-        <input
-          type="text"
-          id="website"
-          v-model.trim="userProfile.website"
-          autocomplete="off">
+        <label class="label" for="location">Location</label>
+        <div class="field">
+          <p class="control has-icons-right">
+            <input
+              type="text"
+              id="location"
+              :value="location"
+              @input="updateProfileData"
+              autocomplete="off">
+              <span class="icon is-small is-right" aria-hidden="true">
+                <font-awesome-icon icon="map-marker-alt"></font-awesome-icon>
+              </span>
+          </p>
+        </div>
 
-        <label for="avatar">Avatar</label>
-        <input
-          type="text"
-          id="avatar"
-          v-model.trim="userProfile.avatar"
-          autocomplete="off">
+        <label class="label" for="website">Website</label>
+        <div class="field">
+          <p class="control has-icons-right">
+            <input
+              type="text"
+              id="website"
+              :value="website"
+              @input="updateProfileData"
+              autocomplete="off">
+              <span class="icon is-small is-right" aria-hidden="true">
+                <font-awesome-icon icon="atlas"></font-awesome-icon>
+              </span>
+          </p>
+        </div>
+
+        <div class="field">
+          <label class="label" for="avatar">Avatar</label>
+          <p class="control has-icons-right">
+            <input
+              type="text"
+              id="avatar"
+              :value="avatar"
+              @input="updateProfileData"
+              autocomplete="off">
+              <span class="icon is-small is-right" aria-hidden="true">
+                <font-awesome-icon icon="user-circle"></font-awesome-icon>
+              </span>
+          </p>
+        </div>
 
         <button @click="updateProfile" class="button">Update Profile</button>
       </form>
-
-      <transition name="fade">
-        <div v-if="errorMsg !== ''" class="error-msg">
-          <p>{{ errorMsg }}</p>
-        </div>
-      </transition>
     </div>
   </section>
 </template>
 
 <script>
 import { mapState } from 'vuex'
+import firebase from 'firebase/app'
+import 'firebase/auth'
 
 export default {
   computed: {
-    ...mapState(['currentUser', 'userProfile'])
+    ...mapState(['currentUser']),
+    ...mapState({
+      title: state => state.userProfile.title,
+      name: state => state.userProfile.name,
+      authEmail: state => state.currentUser.email,
+      email: state => state.userProfile.email,
+      location: state => state.userProfile.location,
+      website: state => state.userProfile.website,
+      avatar: state => state.userProfile.avatar
+    })
   },
   data () {
     return {
-      showSuccess: false,
-      errorMsg: ''
+      errorMsg: '',
+      originalAuthEmail: '',
+      reAuthForm: {
+        password: ''
+      }
     }
   },
   methods: {
+    updateProfileData (e) {
+      this.$store.commit('updateProfileData', {
+        type: e.target.id,
+        value: e.target.value
+      })
+    },
     updateProfile () {
       this.$store.dispatch('updateProfile', {
-        name: this.userProfile.name,
-        title: this.userProfile.title,
-        avatar: this.userProfile.avatar,
-        location: this.userProfile.location,
-        website: this.userProfile.website
+        name: this.name,
+        title: this.title,
+        avatar: this.avatar,
+        location: this.location,
+        website: this.website,
+        email: this.email
       }).then(() => {
-        this.$store.dispatch('updateEmailAddress', {
-          email: this.userProfile.email,
-          user: this.currentUser
-        }).catch(err => {
-          this.errorMsg = err
-        })
+        if (this.authEmail !== this.originalAuthEmail) {
+          this.$dialog.prompt({
+            message: 'Please enter your current password to re-authenticate',
+            inputAttrs: {
+              placeholder: 'Enter your password',
+              type: 'password',
+              autocomplete: 'current-password'
+            },
+            onConfirm: val => {
+              this.reAuthenticate(val).then(() => {
+                this.$store.dispatch('updateAuthEmail', this.authEmail).then(() => {
+                  this.originalAuthEmail = this.authEmail
+
+                  this.$toast.open({
+                    message: 'Profile updated successfully',
+                    type: 'is-success'
+                  })
+                }).catch(err => {
+                  console.log(err)
+                  this.errorMsg = err
+                })
+              }).catch(err => {
+                console.log(err)
+                this.errorMsg = err
+              })
+            }
+          })
+        }
       }).catch(err => {
         console.log(err)
+        this.errorMsg = err
       })
-
-      this.showSuccess = true
-
-      setTimeout(() => {
-        this.showSuccess = false
-      }, 2000)
+    },
+    reAuthenticate (password) {
+      const credential = firebase.auth.EmailAuthProvider.credential(
+        this.originalAuthEmail, password
+      )
+      return new Promise((resolve, reject) => {
+        this.currentUser.reauthenticateAndRetrieveDataWithCredential(credential)
+          .then(() => {
+            resolve()
+          }).catch(err => {
+            reject(err)
+          })
+      })
     }
+  },
+  mounted () {
+    this.originalAuthEmail = this.$store.state.currentUser.email
   }
 }
 </script>
@@ -138,17 +251,12 @@ export default {
     padding: 2rem;
   }
 
-  form {
-    margin-top: 3rem;
-  }
-
-  .success {
-    color: $success;
-    margin: 0.5rem 0 -2rem;
-  }
-
   .button {
     margin-top: 1rem;
+  }
+
+  .control.has-icons-right input {
+    padding-right: 2.25em;
   }
 }
 </style>

@@ -15,6 +15,7 @@ firebase.initializeApp(config)
 const db = firebase.firestore()
 const auth = firebase.auth()
 const currentUser = auth.currentUser
+const timestamp = firebase.firestore.FieldValue.serverTimestamp()
 
 const settings = {
   timestampsInSnapshots: true
@@ -31,6 +32,7 @@ export {
   db,
   auth,
   currentUser,
+  timestamp,
   usersCollection,
   postsCollection,
   notesCollection,

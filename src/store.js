@@ -73,7 +73,6 @@ fb.auth.onAuthStateChanged(user => {
 
     fb.usersCollection.doc(user.uid).onSnapshot(doc => {
       let data = doc.data()
-      data.email = user.email
       store.commit('setUserProfile', data)
     })
   }
@@ -93,7 +92,6 @@ export const store = new Vuex.Store({
     fetchUserProfile ({ commit, state }) {
       fb.usersCollection.doc(state.currentUser.uid).get().then(res => {
         let data = res.data()
-        data.email = state.currentUser.email
         commit('setUserProfile', data)
       }).catch(err => {
         console.log(err)
@@ -109,18 +107,20 @@ export const store = new Vuex.Store({
       commit('setUsers', null)
     },
     updateProfile ({ commit, state }, data) {
-      let name = data.name
-      let title = data.title
-      let avatar = data.avatar
-      let location = data.location
-      let website = data.website
+      let name = data.name ? data.name : null
+      let title = data.title ? data.title : null
+      let avatar = data.avatar ? data.avatar : null
+      let location = data.location ? data.location : null
+      let website = data.website ? data.website : null
+      let email = data.email ? data.email : null
 
       fb.usersCollection.doc(state.currentUser.uid).update({
-        name,
-        title,
-        avatar,
-        location,
-        website
+        name: name,
+        title: title,
+        avatar: avatar,
+        location: location,
+        website: website,
+        email: email
       }).then(user => {
         fb.postsCollection.where('userId', '==', state.currentUser.uid).get().then(docs => {
           docs.forEach(doc => {
@@ -143,22 +143,13 @@ export const store = new Vuex.Store({
         console.log(err)
       })
     },
-    updateEmailAddress ({ commit, state }, data) {
+    updateAuthEmail ({ commit, state }, email) {
       return new Promise((resolve, reject) => {
-        let email = data.email
-        let user = data.user
-
-        if (email !== state.currentUser.email) {
-          fb.usersCollection.doc(state.currentUser.uid).update({ email: email }).then(() => {
-            user.updateEmail(email).then(() => {
-              resolve()
-            }).catch(err => {
-              reject(err)
-            })
-          }).catch(err => {
-            console.log(err)
-          })
-        }
+        state.currentUser.updateEmail(email).then(() => {
+          resolve()
+        }).catch(err => {
+          reject(err)
+        })
       })
     }
   },
@@ -197,6 +188,13 @@ export const store = new Vuex.Store({
     },
     setUsers (state, val) {
       state.users = val
+    },
+    updateProfileData (state, payload) {
+      if (payload.type === 'authEmail') {
+        state.currentUser.email = payload.value
+      } else {
+        state.userProfile[`${payload.type}`] = payload.value
+      }
     }
   }
 })

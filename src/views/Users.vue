@@ -10,6 +10,8 @@
               <th>Email</th>
               <th>Location</th>
               <th>Website</th>
+              <th>Created At</th>
+              <th>Updated At</th>
             </tr>
           </thead>
           <tbody>
@@ -23,6 +25,8 @@
               <td>{{ user.email }}</td>
               <td>{{ user.location ? user.location : 'Not specified' }}</td>
               <td>{{ user.website ? user.website : 'Not specified' }}</td>
+              <td>{{ user.createdAt | formatDate }}</td>
+              <td>{{ user.updatedAt | formatDate }}</td>
             </tr>
           </tbody>
         </table>
@@ -47,7 +51,7 @@ export default {
     formatDate (val) {
       if (!val) { return '-' }
       let date = val.toDate()
-      return moment(date).fromNow()
+      return moment(date).format('DD/MM/YYYY')
     }
   }
 }

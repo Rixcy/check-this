@@ -11,7 +11,13 @@ import {
   faCircle,
   faTimes,
   faReply,
-  faHeart
+  faHeart,
+  faLock,
+  faEnvelope,
+  faMapMarkerAlt,
+  faUser,
+  faUserCircle,
+  faAtlas
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 const fb = require('./firebaseConfig.js')
@@ -21,7 +27,13 @@ library.add(
   faCircle,
   faTimes,
   faReply,
-  faHeart
+  faHeart,
+  faLock,
+  faEnvelope,
+  faMapMarkerAlt,
+  faUser,
+  faUserCircle,
+  faAtlas
 )
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
