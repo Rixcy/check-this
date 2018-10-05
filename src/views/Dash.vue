@@ -49,6 +49,7 @@
                 <div class="media-right">
                   <span class="is-pulled-right is-inline-block">
                     <a
+                      v-if="currentUser.uid === note.userId"
                       @click="deleteNote(note)"
                       class="delete is-medium"></a>
                   </span>
@@ -73,11 +74,8 @@
 
 <script>
 import { mapState } from 'vuex'
-const fb = require('../firebaseConfig.js')
-
-const md = require('markdown-it')()
-const prism = require('markdown-it-prism')
-md.use(prism)
+const fb = require('@/common/firebaseConfig.js')
+const md = require('@/common/markdown.js')
 
 export default {
   data () {
@@ -93,7 +91,7 @@ export default {
   },
   methods: {
     noteContent: (n) => {
-      return md.render(n)
+      return md.md.render(n)
     },
     inputHandler (e) {
       if (e.keyCode === 13 && !e.shiftKey) {

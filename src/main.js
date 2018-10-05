@@ -10,7 +10,7 @@ import './assets/js/prism.js'
 import '@/common/font-awesome'
 import '@/common/date.filter'
 
-const fb = require('./firebaseConfig.js')
+const fb = require('@/common/firebaseConfig.js')
 
 Vue.config.productionTip = false
 

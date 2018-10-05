@@ -76,7 +76,7 @@
 
 <script>
 import { mapState } from 'vuex'
-const fb = require('../firebaseConfig.js')
+const fb = require('@/common/firebaseConfig.js')
 
 export default {
   data () {
