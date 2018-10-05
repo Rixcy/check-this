@@ -18,7 +18,6 @@
         </div>
       </div>
     </div>
-
     <div class="container">
       <section class="articles">
         <transition name="fade">
@@ -41,9 +40,7 @@
                   </p>
                 </div>
                 <div class="media-content">
-                  <p style="margin-bottom: 15px">
-                    {{ note.content }}
-                  </p>
+                  <p style="margin-bottom: 15px" v-html="noteContent(note.content)"></p>
                   <div class="level">
                     <div class="tags has-addons level-item is-inline-block">
                       <span class="tag is-rounded is-info">{{ note.userName }}</span>
@@ -81,19 +78,30 @@ import { mapState } from 'vuex'
 import moment from 'moment'
 const fb = require('../firebaseConfig.js')
 
+const md = require('markdown-it')()
+const prism = require('markdown-it-prism')
+md.use(prism)
+
 export default {
   data () {
     return {
       note: {
         content: ''
       },
-      showNoteModal: false
+      showNoteModal: false,
+      anchorAttrs: {
+        target: '_blank',
+        rel: 'noopener noreferrer nofollow'
+      }
     }
   },
   computed: {
     ...mapState(['userProfile', 'currentUser', 'notes', 'hiddenNotes'])
   },
   methods: {
+    noteContent: (n) => {
+      return md.render(n)
+    },
     inputHandler (e) {
       if (e.keyCode === 13 && !e.shiftKey) {
         e.preventDefault()
@@ -110,6 +118,7 @@ export default {
         avatar: this.userProfile.avatar
       }).then(ref => {
         this.note.content = ''
+        console.log(ref)
       }).catch(err => {
         console.log(err)
       })

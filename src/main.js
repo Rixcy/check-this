@@ -1,4 +1,4 @@
-import './assets/scss/app.scss'
+import './assets/css/app.scss'
 import Vue from 'vue'
 import App from './App.vue'
 import Buefy from 'buefy'
@@ -20,6 +20,8 @@ import {
   faAtlas
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import './assets/css/prism.css'
+import './assets/js/prism.js'
 const fb = require('./firebaseConfig.js')
 
 library.add(
