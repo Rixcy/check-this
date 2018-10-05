@@ -6,7 +6,6 @@ import { store } from './store.js'
 import Buefy from 'buefy'
 import 'buefy/dist/buefy.css'
 import './assets/css/prism.css'
-import './assets/js/prism.js'
 import '@/common/font-awesome'
 import '@/common/date.filter'
 

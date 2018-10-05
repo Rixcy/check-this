@@ -1,4 +1,4 @@
-const md = require('markdown-it')()
+const md = require('markdown-it')('commonmark')
 const prism = require('markdown-it-prism')
 md.use(prism)
 
@@ -18,6 +18,10 @@ md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
 
   // pass token to default renderer.
   return defaultRender(tokens, idx, options, env, self)
+}
+
+md.renderer.rules.table_open = function (tokens, idx) {
+  return '<table class="table">'
 }
 
 export {

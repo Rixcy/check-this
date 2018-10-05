@@ -30,7 +30,7 @@
         </transition>
         <div v-if="notes.length">
           <div class="card article" v-for="note in notes" :key="note.id">
-            <div class="card-content">
+            <div class="card-content content">
               <div class="media">
                 <div class="media-left">
                   <p class="image is-64x64">
@@ -74,8 +74,9 @@
 
 <script>
 import { mapState } from 'vuex'
-const fb = require('@/common/firebaseConfig.js')
-const md = require('@/common/markdown.js')
+import '@/common/prism'
+const fb = require('@/common/firebaseConfig')
+const md = require('@/common/markdown')
 
 export default {
   data () {
