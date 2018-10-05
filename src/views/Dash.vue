@@ -34,9 +34,7 @@
               <div class="media">
                 <div class="media-left">
                   <p class="image is-64x64">
-                    <img
-                      class="is-rounded"
-                      :src="note.avatar" />
+                    <img class="is-rounded" :src="note.avatar" />
                   </p>
                 </div>
                 <div class="media-content">
@@ -75,7 +73,6 @@
 
 <script>
 import { mapState } from 'vuex'
-import moment from 'moment'
 const fb = require('../firebaseConfig.js')
 
 const md = require('markdown-it')()
@@ -88,11 +85,7 @@ export default {
       note: {
         content: ''
       },
-      showNoteModal: false,
-      anchorAttrs: {
-        target: '_blank',
-        rel: 'noopener noreferrer nofollow'
-      }
+      showNoteModal: false
     }
   },
   computed: {
@@ -118,15 +111,12 @@ export default {
         avatar: this.userProfile.avatar
       }).then(ref => {
         this.note.content = ''
-        console.log(ref)
       }).catch(err => {
         console.log(err)
       })
     },
     deleteNote (note) {
-      fb.notesCollection.doc(note.id).delete().then(() => {
-        console.log('deleted')
-      }).catch(err => {
+      fb.notesCollection.doc(note.id).delete().catch(err => {
         console.log(err)
       })
     },
@@ -135,13 +125,6 @@ export default {
       // clear hiddenNotes array and update notes array
       this.$store.commit('setHiddenNotes', null)
       this.$store.commit('setNotes', updatedNotesArray)
-    }
-  },
-  filters: {
-    formatDate (val) {
-      if (!val) { return '-' }
-      let date = val.toDate()
-      return moment(date).fromNow()
     }
   }
 }

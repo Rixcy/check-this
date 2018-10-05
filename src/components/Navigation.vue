@@ -7,7 +7,7 @@
       <div class="container">
         <div class="navbar-brand">
           <router-link class="navbar-item" to="/">
-            <h4 class="title is-4">Rixcy</h4>
+            <h4 class="title is-4">Check This</h4>
           </router-link>
 
           <a

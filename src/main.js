@@ -1,45 +1,19 @@
 import './assets/css/app.scss'
 import Vue from 'vue'
 import App from './App.vue'
-import Buefy from 'buefy'
-import 'buefy/dist/buefy.css'
 import router from './router'
 import { store } from './store.js'
-import { library } from '@fortawesome/fontawesome-svg-core'
-import {
-  faPencilAlt,
-  faCircle,
-  faTimes,
-  faReply,
-  faHeart,
-  faLock,
-  faEnvelope,
-  faMapMarkerAlt,
-  faUser,
-  faUserCircle,
-  faAtlas
-} from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import Buefy from 'buefy'
+import 'buefy/dist/buefy.css'
 import './assets/css/prism.css'
 import './assets/js/prism.js'
+import '@/common/font-awesome'
+import '@/common/date.filter'
+
 const fb = require('./firebaseConfig.js')
 
-library.add(
-  faPencilAlt,
-  faCircle,
-  faTimes,
-  faReply,
-  faHeart,
-  faLock,
-  faEnvelope,
-  faMapMarkerAlt,
-  faUser,
-  faUserCircle,
-  faAtlas
-)
-Vue.component('font-awesome-icon', FontAwesomeIcon)
-
 Vue.config.productionTip = false
+
 Vue.use(Buefy)
 
 let app

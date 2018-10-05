@@ -1,4 +1,6 @@
-# rixcy-fb
+# Check This
+
+A small productivity project to play around with Vue.
 
 ## Project setup
 ```
